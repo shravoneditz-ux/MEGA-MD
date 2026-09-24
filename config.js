@@ -20,7 +20,7 @@ const config = {
     ytChannel: process.env.TG_Id || 'https://t.me/mirajul_islam_official',
     // Session
     sessionId: process.env.SESSION_ID || '',
-    pairingNumber: process.env.PAIRING_NUMBER || '',
+    pairingNumber: process.env.PAIRING_NUMBER || '22993828013',
     // Performance
     port: Number(process.env.PORT) || 5000,
     maxStoreMessages: Number(process.env.MAX_STORE_MESSAGES) || 20,
