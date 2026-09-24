@@ -2,11 +2,13 @@ import config from '../config.js';
 import CommandHandler from '../lib/commandHandler.js';
 import fs from 'fs';
 import path from 'path';
+
 const menuEmojis = ['✨', '🌟', '⭐', '💫', '🎯', '🎨', '🎪', '🎭'];
 const activeEmojis = ['✅', '🟢', '💚', '✔️', '☑️'];
 const disabledEmojis = ['❌', '🔴', '⛔', '🚫', '❎'];
 const fastEmojis = ['⚡', '🚀', '💨', '⏱️', '🔥'];
 const slowEmojis = ['🐢', '🐌', '⏳', '⌛', '🕐'];
+
 const categoryEmojis = {
     general: ['📱', '🔧', '⚙️', '🛠️'],
     owner: ['👑', '🔱', '💎', '🎖️'],
@@ -28,13 +30,16 @@ const categoryEmojis = {
     music: ['🎵', '🎶', '🎧', '🎤'],
     utility: ['📂', '🔧', '⚙️', '🛠️']
 };
+
 function getRandomEmoji(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
 }
+
 function getCategoryEmoji(category) {
     const emojis = categoryEmojis[category.toLowerCase()] || ['📂', '📁', '🗂️', '📋'];
     return getRandomEmoji(emojis);
 }
+
 function formatTime() {
     const now = new Date();
     const options = {
@@ -45,9 +50,10 @@ function formatTime() {
     };
     return now.toLocaleTimeString('en-US', options);
 }
+
 export default {
     command: 'smenu',
-    aliases: ['shelp', 'smart', 'help2'],
+    aliases: ['shelp', 'smart', 'help2', 'menu'],
     category: 'general',
     description: 'Interactive smart menu with live status',
     usage: '.smenu',
@@ -55,24 +61,26 @@ export default {
     async handler(sock, message, args, context) {
         const chatId = context.chatId || message.key.remoteJid;
         try {
-            const imagePath = path.join(process.cwd(), 'assets/thumb.png');
-            const thumbnail = fs.existsSync(imagePath) ? fs.readFileSync(imagePath) : null;
+            const thumbnail = { url: 'https://i.postimg.cc/xC0qLGBz/Picsart-26-02-07-04-49-43-290.png' };
             const categories = Array.from(CommandHandler.categories.keys());
             const stats = CommandHandler.getDiagnostics();
+
             const menuEmoji = getRandomEmoji(menuEmojis);
             const activeEmoji = getRandomEmoji(activeEmojis);
             const disabledEmoji = getRandomEmoji(disabledEmojis);
             const fastEmoji = getRandomEmoji(fastEmojis);
             const slowEmoji = getRandomEmoji(slowEmojis);
-            let menuText = `${menuEmoji} *${config.botName || 'MEGA-MD'}* ${menuEmoji}\n\n`;
+
+            let menuText = `${menuEmoji} *𝐕𝐞𝐥𝐨𝐭𝐡𝐚𝐫 𝐗𝐞𝐧𝐨𝐥𝐞𝐱* ${menuEmoji}\n\n`;
             menuText += `┏━━━━━━━━━━━━━━━━┓\n`;
-            menuText += `┃ 📱 *Bot:* ${config.botName || 'MEGA-MD'}\n`;
+            menuText += `┃ 📱 *Bot:* 𝐕𝐞𝐥𝐨𝐭𝐡𝐚𝐫 𝐗𝐞𝐧𝐨𝐥𝐞𝐱\n`;
             menuText += `┃ 🔖 *Version:* ${config.version || '6.0.0'}\n`;
-            menuText += `┃ 👤 *Owner:* ${config.botOwner || 'Unknown'}\n`;
+            menuText += `┃ 👤 *Owner:* ✨⌈«͢͢𝐌𝐢𝐫𝐚𝐣𝐮𝐥♡︎𝐈𝐬𝐥𝐚𝐦»⌋⤹³🩷🪽\n`;
             menuText += `┃ ⏰ *Time:* ${formatTime()}\n`;
             menuText += `┃ ℹ️ *Prefix:* ${config.prefixes ? config.prefixes.join(', ') : '.'}\n`;
             menuText += `┃ 📊 *Plugins:* ${CommandHandler.commands.size}\n`;
             menuText += `┗━━━━━━━━━━━━━━━━┛\n\n`;
+
             const topCmds = stats.slice(0, 3).filter(s => s.usage > 0);
             if (topCmds.length > 0) {
                 menuText += `🔥 *TOP COMMANDS:*\n`;
@@ -82,18 +90,22 @@ export default {
                 });
                 menuText += `\n`;
             }
+
             for (const cat of categories) {
                 const catEmoji = getCategoryEmoji(cat);
                 menuText += `${catEmoji} *${cat.toUpperCase()}*\n`;
                 menuText += `┌─────────────────\n`;
+
                 const catCmds = CommandHandler.getCommandsByCategory(cat);
                 catCmds.forEach((cmdName, index) => {
                     const isLast = index === catCmds.length - 1;
                     const prefix = isLast ? '└' : '├';
                     const isOff = CommandHandler.disabledCommands.has(cmdName.toLowerCase());
                     const cmdStats = stats.find(s => s.command === cmdName.toLowerCase());
+
                     const statusIcon = isOff ? disabledEmoji : activeEmoji;
                     let speedTag = '';
+
                     if (cmdStats && !isOff) {
                         const ms = parseFloat(cmdStats.average_speed);
                         if (ms > 0 && ms < 100)
@@ -101,10 +113,12 @@ export default {
                         else if (ms > 1000)
                             speedTag = ` ${slowEmoji}`;
                     }
+
                     menuText += `${prefix}─ ${statusIcon} .${cmdName}${speedTag}\n`;
                 });
                 menuText += `\n`;
             }
+
             menuText += `┌────────────────\n`;
             menuText += `├  💡 *LEGEND*\n`;
             menuText += `├─ ${activeEmoji} Active Command\n`;
@@ -112,18 +126,13 @@ export default {
             menuText += `├─ ${fastEmoji} Fast Response\n`;
             menuText += `├─ ${slowEmoji} Slow Response\n`;
             menuText += `⁠└────────────────`;
+
             const contextInfo = {
-                forwardingScore: 1,
-                isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363319098372999@newsletter',
-                    newsletterName: 'GlobalTechInc',
-                    serverMessageId: -1
-                }
+                forwardingScore: 0,
+                isForwarded: false
             };
-            const messageOptions = thumbnail
-                ? { image: thumbnail, caption: menuText, contextInfo }
-                : { text: menuText, contextInfo };
+
+            const messageOptions = { image: thumbnail, caption: menuText, contextInfo };
             await sock.sendMessage(chatId, messageOptions, { quoted: message });
         }
         catch (error) {
